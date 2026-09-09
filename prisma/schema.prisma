@@ -1,0 +1,171 @@
+// Prisma schema for WorkPulse - Local SQLite Backend
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String         @id @default(cuid())
+  name             String
+  email            String         @unique
+  password         String         @default("password123")
+  role             String         @default("EMPLOYEE") // ADMIN, MANAGER, HR, EMPLOYEE
+  jobTitle         String
+  departmentName   String
+  avatarUrl        String?
+  phone            String?
+  bio              String?
+  skills           String         @default("[]") // JSON array of skills
+  emergencyContact String?
+  joinedDate       String
+  timezone         String         @default("America/New_York")
+  workPreference   String         @default("Remote") // Remote, Hybrid, On-site
+  status           String         @default("WORKING") // WORKING, ON_LEAVE, ABSENT, REMOTE, PART_TIME
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  tasks            Task[]         @relation("AssignedTasks")
+  createdTasks     Task[]         @relation("CreatedTasks")
+  leaveRequests    LeaveRequest[]
+  attendanceLogs   Attendance[]
+  checkIns         CheckIn[]
+  monthlyLogs      MonthlyLog[]
+  managedProjects  Project[]      @relation("ManagedProjects")
+  goals            Goal[]
+  blockersReported Blocker[]
+}
+
+model MonthlyLog {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthYear        String   // Format: "YYYY-MM", e.g. "2026-08"
+  monthName        String   // "August 2026"
+  daysWorked       Int      @default(22)
+  hoursWorked      Float    @default(176.0)
+  leavesTaken      Float    @default(0.0)
+  tasksCompleted   Int      @default(0)
+  punctualityRate  Float    @default(98.0)
+  managerRating    Float    @default(4.8)
+  performanceNotes String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, monthYear])
+}
+
+model Attendance {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date         String   // Format: "YYYY-MM-DD"
+  status       String   @default("WORKING") // WORKING, ON_LEAVE, ABSENT, LATE, REMOTE
+  checkInTime  String?  // e.g. "09:00 AM"
+  checkOutTime String?  // e.g. "06:00 PM"
+  hoursWorked  Float    @default(8.0)
+  note         String?
+  createdAt    DateTime @default(now())
+}
+
+model LeaveRequest {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String    @default("ANNUAL") // CASUAL, SICK, ANNUAL, PERSONAL, WFH, BEREAVEMENT
+  startDate      String    // "YYYY-MM-DD"
+  endDate        String    // "YYYY-MM-DD"
+  daysCount      Float     @default(1.0)
+  reason         String
+  status         String    @default("APPROVED") // PENDING, APPROVED, REJECTED, CANCELLED
+  reviewerName   String?
+  reviewedAt     DateTime?
+  handoverNotes  String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  color       String    @default("#10b981")
+  status      String    @default("ACTIVE") // ACTIVE, PLANNING, COMPLETED, ON_HOLD
+  managerId   String?
+  manager     User?     @relation("ManagedProjects", fields: [managerId], references: [id])
+  tasks       Task[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("IN_PROGRESS") // BACKLOG, PLANNED, IN_PROGRESS, REVIEW, COMPLETED, BLOCKED
+  priority    String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  type        String    @default("Feature") // Feature, Bug, Review, Testing
+  progress    Int       @default(0) // 0 to 100
+  dueDate     String?   // "YYYY-MM-DD"
+  timeline    String?   // e.g. "June 24, 2026 - July 3, 2026"
+  groupName   String?   // e.g. "Refactor login flow"
+  assigneeId  String?
+  assignee    User?     @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  creatorId   String?
+  creator     User?     @relation("CreatedTasks", fields: [creatorId], references: [id])
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CheckIn {
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date               String   // "YYYY-MM-DD"
+  weekNumber         Int
+  goalsAccomplished  String
+  blockers           String?
+  satisfactionScore  Int      @default(5) // 1 to 5
+  managerResponse    String?
+  createdAt          DateTime @default(now())
+}
+
+model Goal {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  departmentName String?
+  progress       Int      @default(0)
+  status         String   @default("ON_TRACK") // ON_TRACK, AT_RISK, BEHIND, COMPLETED
+  targetDate     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Blocker {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  severity    String   @default("HIGH") // LOW, MEDIUM, HIGH, CRITICAL
+  status      String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  actorName String
+  details   String
+  createdAt DateTime @default(now())
+}

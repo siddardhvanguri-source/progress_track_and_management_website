@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Day / Light Theme Tokens */
+    --background:   210 20% 98%;
+    --foreground:   222 47% 11%;
+    --card:         0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover:      0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary:      224 100% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary:    210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted:        210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+    --accent:       210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+    --border:       214 32% 91%;
+    --input:        214 32% 91%;
+    --ring:         224 100% 58%;
+
+    --bg:           210 20% 98%;
+    --bg-elevated:  0 0% 100%;
+    --bg-overlay:   210 40% 96.1%;
+    --border-subtle:214 32% 91%;
+
+    --text-primary:  222 47% 11%;
+    --text-secondary:215 16% 47%;
+    --text-tertiary: 215 16% 65%;
+
+    --green:        142 76% 40%;
+    --amber:        38 92% 45%;
+    --red:          0 84% 55%;
+    --blue:         217 91% 55%;
+
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 14px;
+  }
+
+  .dark {
+    /* Night / Command Center Dark Theme */
+    --background:   222 47% 5%;
+    --foreground:   210 40% 98%;
+    --card:         222 47% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover:      222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary:      224 100% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary:    217 33% 13%;
+    --secondary-foreground: 210 40% 98%;
+    --muted:        217 33% 13%;
+    --muted-foreground: 215 20% 65%;
+    --accent:       217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --border:       217 33% 17%;
+    --input:        217 33% 17%;
+    --ring:         224 100% 58%;
+
+    --bg:           222 47% 5%;
+    --bg-elevated:  222 47% 7%;
+    --bg-overlay:   217 33% 13%;
+    --border-subtle:217 33% 17%;
+
+    --text-primary:  210 40% 98%;
+    --text-secondary:215 20% 65%;
+    --text-tertiary: 215 16% 45%;
+
+    --green:        142 76% 45%;
+    --amber:        38 92% 50%;
+    --red:          0 84% 60%;
+    --blue:         217 91% 60%;
+  }
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: hsl(var(--text-primary));
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    letter-spacing: -0.011em;
+  }
+
+  .dark { color-scheme: dark; }
+  :root:not(.dark) { color-scheme: light; }
+}
+
+/* -- Scrollbar ----------------------------- */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: hsl(var(--border)); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--text-tertiary)); }
+
+/* -- Sidebar active pill ------------------- */
+.sidebar-item-active {
+  background: hsl(var(--bg-overlay));
+  color: hsl(var(--text-primary));
+  font-weight: 500;
+}
+.sidebar-item {
+  color: hsl(var(--text-secondary));
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-item:hover {
+  background: hsl(var(--bg-elevated));
+  color: hsl(var(--text-primary));
+}
+
+/* -- App shell background ------------------ */
+.app-bg {
+  background-color: hsl(var(--bg));
+}
+
+/* -- Cards --------------------------------- */
+.card {
+  background: hsl(var(--bg-elevated));
+  border: 1px solid hsl(var(--border-subtle));
+  border-radius: var(--radius);
+}
+
+/* -- Status badges ------------------------- */
+.badge-green  { background: hsl(142 60% 15%); color: hsl(142 76% 55%); }
+.badge-amber  { background: hsl(38  60% 15%); color: hsl(38  92% 60%); }
+.badge-red    { background: hsl(0   60% 15%); color: hsl(0   84% 65%); }
+.badge-blue   { background: hsl(217 60% 18%); color: hsl(217 91% 70%); }
+.badge-purple { background: hsl(252 50% 18%); color: hsl(252 95% 75%); }
+.badge-muted  { background: hsl(var(--bg-overlay)); color: hsl(var(--text-secondary)); }
+
+/* -- Kanban columns ------------------------ */
+.kanban-col {
+  background: hsl(var(--bg-elevated));
+  border: 1px solid hsl(var(--border-subtle));
+  border-radius: var(--radius);
+  min-height: 200px;
+}
+
+/* -- Animations ---------------------------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.2s ease-out both; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn 0.15s ease-out both; }
+
+/* -- Landing page blob animations ---------- */
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -20px) scale(1.05); }
+  66%       { transform: translate(-20px, 20px) scale(0.95); }
+}
+.animate-blob {
+  animation: blob 8s ease-in-out infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* -- Gradient text ------------------------- */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(252 95% 75%), hsl(217 91% 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* -- Glassmorphism ------------------------- */
+.glass {
+  background: hsl(var(--bg-elevated) / 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border-subtle));
+}
+
+/* -- Focus ring ---------------------------- */
+:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* -- Tailwind component classes that need dark bg for app pages -- */
+.bg-background { background-color: hsl(var(--bg)); }
+.text-foreground { color: hsl(var(--text-primary)); }
+.bg-card { background-color: hsl(var(--bg-elevated)); }
+.border-border { border-color: hsl(var(--border-subtle)); }
+.text-muted-foreground { color: hsl(var(--text-secondary)); }
+.text-primary { color: hsl(var(--accent)); }
+.bg-primary { background-color: hsl(var(--accent)); }
+.bg-accent { background-color: hsl(var(--bg-overlay)); }
+
