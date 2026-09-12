@@ -68,7 +68,7 @@ const DEMO_ACCOUNTS = [
   {
     id: 'usr-5',
     name: 'Arjun J',
-    email: 'arjun.j@veixon.tech',
+    email: 'arjun@veixon.tech',
     role: 'EMPLOYEE',
     jobTitle: 'Software Engineer',
     dept: 'Engineering Core',

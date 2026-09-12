@@ -69,7 +69,7 @@ export function HeroSection() {
               href="/login"
               className="group flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-bold text-white bg-[#2962FF] hover:bg-[#1A4FD9] transition-all shadow-xl shadow-[#2962FF]/30 hover:shadow-[#2962FF]/50 hover:-translate-y-0.5"
             >
-              Enter Portal
+              Enter Command Center
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a

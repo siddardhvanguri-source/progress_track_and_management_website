@@ -154,7 +154,7 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
-const STORAGE_KEY = 'workpulse_app_state_v1';
+const STORAGE_KEY = 'veixon_command_center_state_v2';
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
@@ -171,10 +171,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
   const [insights] = useState<InsightCard[]>(PROACTIVE_INSIGHTS);
 
-  // App state
-  const [currentUser, setCurrentUser] = useState<User>(INITIAL_USERS[0]); // Sarah Jenkins (Admin)
-  const [currentRole, setCurrentRoleState] = useState<Role>('ADMIN');
-  const [currentOrg, setCurrentOrg] = useState<string>('Acme Corp');
+  // App state — Primary Director: V S Sai Siddardh
+  const [currentUser, setCurrentUser] = useState<User>(INITIAL_USERS[0]);
+  const [currentRole, setCurrentRoleState] = useState<Role>('DIRECTOR');
+  const [currentOrg, setCurrentOrg] = useState<string>('VEIXON');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [isCommandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -202,7 +202,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
         if (parsed.notifications) setNotifications(parsed.notifications);
       }
-      const darkPref = localStorage.getItem('workpulse_theme');
+      const darkPref = localStorage.getItem('veixon_theme');
       if (darkPref !== null) {
         setIsDarkMode(darkPref === 'dark');
       }
@@ -239,12 +239,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       try {
-        localStorage.setItem('workpulse_theme', 'dark');
+        localStorage.setItem('veixon_theme', 'dark');
       } catch {}
     } else {
       document.documentElement.classList.remove('dark');
       try {
-        localStorage.setItem('workpulse_theme', 'light');
+        localStorage.setItem('veixon_theme', 'light');
       } catch {}
     }
   }, [isDarkMode]);
@@ -255,18 +255,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const setCurrentRole = (role: Role) => {
     setCurrentRoleState(role);
-    // Automatically match appropriate demo persona
-    if (role === 'ADMIN') {
-      const u = users.find((x) => x.role === 'ADMIN') || users[0];
+    if (role === 'DIRECTOR') {
+      const u = users.find((x) => x.id === 'usr-1') || users[0];
+      setCurrentUser(u);
+    } else if (role === 'ADMIN') {
+      const u = users.find((x) => x.id === 'usr-2') || users[1];
       setCurrentUser(u);
     } else if (role === 'MANAGER') {
-      const u = users.find((x) => x.id === 'usr-2') || users[1]; // Vikram Mehta
+      const u = users.find((x) => x.id === 'usr-3') || users[2];
       setCurrentUser(u);
     } else if (role === 'HR') {
-      const u = users.find((x) => x.role === 'HR') || users[7]; // Rachel Vance
+      const u = users.find((x) => x.id === 'usr-8') || users[7];
       setCurrentUser(u);
     } else {
-      const u = users.find((x) => x.id === 'usr-3') || users[2]; // Rahul Sharma
+      const u = users.find((x) => x.id === 'usr-7') || users[6];
       setCurrentUser(u);
     }
   };

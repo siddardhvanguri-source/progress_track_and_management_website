@@ -2,69 +2,37 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Calendar as CalendarIcon, Clock, AlertTriangle, ArrowRight, Video, Flag, UserCheck, ShieldAlert } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-
-interface CalendarEventItem {
-  id: string;
-  time: string;
-  title: string;
-  type: 'MEETING' | 'LEAVE' | 'DEADLINE' | 'MILESTONE';
-  participants?: string;
-  conflict?: string;
-  status?: string;
-}
-
-const upcomingEvents: CalendarEventItem[] = [
-  {
-    id: 'ev-1',
-    time: '09:30 AM',
-    title: 'Engineering Daily Standup & Blocker Triage',
-    type: 'MEETING',
-    participants: 'Engineering Core (14 attendees)',
-    status: 'Scheduled',
-  },
-  {
-    id: 'ev-2',
-    time: '11:00 AM',
-    title: 'Product & Design Spec Review — Release v2.4',
-    type: 'MEETING',
-    participants: 'Alex Rivera, Siddhardh, Marcus',
-    status: 'Confirmed',
-  },
-  {
-    id: 'ev-3',
-    time: '02:30 PM',
-    title: 'Enterprise Client Architecture Sync',
-    type: 'MEETING',
-    participants: 'Siddhardh, Vikram, SecOps Lead',
-    status: 'External',
-  },
-  {
-    id: 'ev-4',
-    time: '04:00 PM',
-    title: 'Design System Token Unification Review',
-    type: 'MEETING',
-    participants: 'Ananya Iyer, Siddharth Rao',
-    status: 'Internal',
-  },
-  {
-    id: 'ev-5',
-    time: 'Friday, Sep 18',
-    title: 'Project Phoenix API Integration Milestone',
-    type: 'MILESTONE',
-    conflict: 'Priya Patel (SecOps) is on Leave Sep 17–18. Potential scheduling conflict with key decryption handoff.',
-  },
-  {
-    id: 'ev-6',
-    time: 'Monday, Sep 21',
-    title: 'Project Atlas Beta Candidate Soft-Launch',
-    type: 'DEADLINE',
-    participants: 'Backend & Platform Squad',
-  },
-];
+import { Calendar as CalendarIcon, Clock, AlertTriangle, ArrowRight, Video, Flag } from 'lucide-react';
+import { useStore } from '@/lib/store';
+import { formatDate } from '@/lib/utils';
 
 export function CalendarPreviewWidget() {
+  const { meetings, projects, leaves } = useStore();
+
+  const activeMeetings = meetings.slice(0, 4).map((m) => ({
+    id: m.id,
+    time: new Date(m.scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    title: m.title,
+    type: 'MEETING' as const,
+    participants: `${m.organizerName} & ${m.attendances.length} attendees`,
+    conflict: undefined,
+  }));
+
+  const upcomingMilestones = projects.slice(0, 2).map((p) => {
+    const milestone = p.milestones[0];
+    const leaveOverlap = leaves.find((l) => l.status === 'APPROVED');
+    return {
+      id: `ms-${p.id}`,
+      time: formatDate(milestone?.dueDate || p.targetDate, 'EEEE, MMM d'),
+      title: `${p.name}: ${milestone?.title || 'Milestone Delivery'}`,
+      type: 'MILESTONE' as const,
+      participants: `Project Lead: ${p.leadName}`,
+      conflict: p.health === 'At Risk' ? `Project flagged At Risk. Requires architectural review prior to release.` : undefined,
+    };
+  });
+
+  const combinedEvents = [...activeMeetings, ...upcomingMilestones].slice(0, 6);
+
   return (
     <div className="rounded-2xl border border-white/10 bg-[#0B0F19] p-5 space-y-4 text-white">
       <div className="flex items-center justify-between">
@@ -74,7 +42,7 @@ export function CalendarPreviewWidget() {
             UPCOMING SCHEDULE & DEADLINES
           </h3>
           <span className="text-xs text-[hsl(215_16%_60%)] hidden sm:inline">
-            Next 5–7 operational commitments
+            Active operational commitments & milestone targets
           </span>
         </div>
         <Link
@@ -86,7 +54,7 @@ export function CalendarPreviewWidget() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {upcomingEvents.map((ev) => (
+        {combinedEvents.map((ev) => (
           <div
             key={ev.id}
             className={`p-3.5 rounded-xl border transition-all space-y-2.5 ${
@@ -104,8 +72,6 @@ export function CalendarPreviewWidget() {
                 className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
                   ev.type === 'MILESTONE'
                     ? 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
-                    : ev.type === 'DEADLINE'
-                    ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                     : 'bg-[#2962FF]/15 text-[#00E5FF] border border-[#2962FF]/30'
                 }`}
               >

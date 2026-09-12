@@ -30,10 +30,11 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { currentUser, currentRole, users, tasks, projects } = useStore();
+  const { currentUser, currentRole, users, tasks, projects, meetings, leaves } = useStore();
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isComplaintOpen, setIsComplaintOpen] = useState(false);
+  const [complaintTarget, setComplaintTarget] = useState('Shivani');
   const [currentTime, setCurrentTime] = useState('07:32 PM');
 
   // 1-minute employee daily checkin state
@@ -281,7 +282,7 @@ export default function DashboardPage() {
                 </h3>
               </div>
               <span className="text-xs text-[hsl(215_16%_60%)]">
-                Click any metric to drill down
+                Click any metric to drill down into records
               </span>
             </div>
 
@@ -295,8 +296,8 @@ export default function DashboardPage() {
                   <span className="font-semibold group-hover:text-white">Meetings</span>
                   <Users className="w-3.5 h-3.5 text-[#00E5FF]" />
                 </div>
-                <div className="text-2xl font-black text-white">4</div>
-                <p className="text-[10px] text-white/40">2 upcoming today</p>
+                <div className="text-2xl font-black text-white">{meetings.filter((m) => m.status === 'Scheduled' || m.status === 'In Progress').length}</div>
+                <p className="text-[10px] text-white/40">Active & scheduled</p>
               </Link>
 
               <Link
@@ -304,23 +305,23 @@ export default function DashboardPage() {
                 className="p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-amber-500/50 transition-all space-y-1 block group"
               >
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span className="font-semibold group-hover:text-white">Tasks Due</span>
+                  <span className="font-semibold group-hover:text-white">Active Tasks</span>
                   <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
                 </div>
-                <div className="text-2xl font-black text-white">7</div>
-                <p className="text-[10px] text-white/40">Before 06:00 PM</p>
+                <div className="text-2xl font-black text-white">{tasks.filter((t) => t.status !== 'COMPLETED').length}</div>
+                <p className="text-[10px] text-white/40">{tasks.filter((t) => t.status === 'IN_PROGRESS').length} in progress</p>
               </Link>
 
               <Link
-                href="/calendar"
+                href="/projects"
                 className="p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-purple-500/50 transition-all space-y-1 block group"
               >
                 <div className="flex items-center justify-between text-xs text-white/60">
-                  <span className="font-semibold group-hover:text-white">Deadlines</span>
+                  <span className="font-semibold group-hover:text-white">Projects Active</span>
                   <Calendar className="w-3.5 h-3.5 text-purple-400" />
                 </div>
-                <div className="text-2xl font-black text-white">2</div>
-                <p className="text-[10px] text-white/40">Milestones this week</p>
+                <div className="text-2xl font-black text-white">{projects.filter((p) => p.status === 'Active').length}</div>
+                <p className="text-[10px] text-white/40">{projects.filter((p) => p.health === 'At Risk').length} at risk</p>
               </Link>
 
               <Link
@@ -331,8 +332,10 @@ export default function DashboardPage() {
                   <span className="font-semibold group-hover:text-white">People Away</span>
                   <Clock className="w-3.5 h-3.5 text-sky-400" />
                 </div>
-                <div className="text-2xl font-black text-white">2</div>
-                <p className="text-[10px] text-white/40">1 Duty / 1 Leave</p>
+                <div className="text-2xl font-black text-white">
+                  {users.filter((u) => u.attendanceStatus === 'ON_LEAVE' || u.attendanceStatus === 'LEAVE_ON_DUTY' || u.attendanceStatus === 'UNINFORMED_ABSENCE' || u.attendanceStatus === 'ABSENT').length}
+                </div>
+                <p className="text-[10px] text-white/40">Duty & absence</p>
               </Link>
 
               <Link
@@ -343,8 +346,8 @@ export default function DashboardPage() {
                   <span className="font-semibold group-hover:text-white">Pending Approvals</span>
                   <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <div className="text-2xl font-black text-white">3</div>
-                <p className="text-[10px] text-emerald-400 font-medium">Awaiting your sign-off</p>
+                <div className="text-2xl font-black text-white">{leaves.filter((l) => l.status === 'PENDING_APPROVAL').length}</div>
+                <p className="text-[10px] text-emerald-400 font-medium">Awaiting Director sign-off</p>
               </Link>
             </div>
 
@@ -357,7 +360,7 @@ export default function DashboardPage() {
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     Present
                   </div>
-                  <div className="text-xl font-black text-white">34</div>
+                  <div className="text-xl font-black text-white">{users.filter((u) => u.attendanceStatus === 'WORKING').length}</div>
                   <p className="text-[10px] text-white/50">Active & working</p>
                 </div>
 
@@ -367,7 +370,7 @@ export default function DashboardPage() {
                     <span className="w-2 h-2 rounded-full bg-sky-400" />
                     Leave on Duty
                   </div>
-                  <div className="text-xl font-black text-white">3</div>
+                  <div className="text-xl font-black text-white">{users.filter((u) => u.attendanceStatus === 'LEAVE_ON_DUTY' || u.attendanceStatus === 'ON_LEAVE').length}</div>
                   <p className="text-[10px] text-white/50">Informed duty / on-site</p>
                 </div>
 
@@ -377,9 +380,12 @@ export default function DashboardPage() {
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                     Uninformed Leave
                   </div>
-                  <div className="text-xl font-black text-rose-300">1</div>
+                  <div className="text-xl font-black text-rose-300">{users.filter((u) => u.attendanceStatus === 'UNINFORMED_ABSENCE' || u.attendanceStatus === 'ABSENT').length}</div>
                   <button
-                    onClick={() => setIsComplaintOpen(true)}
+                    onClick={() => {
+                      setComplaintTarget(users.find((u) => u.attendanceStatus === 'UNINFORMED_ABSENCE' || u.attendanceStatus === 'ABSENT')?.name || 'Shivani');
+                      setIsComplaintOpen(true);
+                    }}
                     className="text-[10px] text-rose-200 font-bold hover:underline block pt-0.5 cursor-pointer"
                   >
                     Raise Complaint →
@@ -392,14 +398,14 @@ export default function DashboardPage() {
                     <span className="w-2 h-2 rounded-full bg-violet-500" />
                     Deep Work
                   </div>
-                  <div className="text-xl font-black text-white">4</div>
+                  <div className="text-xl font-black text-white">{users.filter((u) => u.attendanceStatus === 'DEEP_WORK' || u.attendanceStatus === 'REMOTE').length}</div>
                   <p className="text-[10px] text-white/50">Focus sprint mode</p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* ── 3. WHAT CHANGED (Section 37 Timeline) ───────────────── */}
+          {/* ── 3. WHAT CHANGED (Timeline Activity Data) ───────────────── */}
           <section className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-[#0B0F19] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -408,13 +414,13 @@ export default function DashboardPage() {
                   WHAT CHANGED WHILE YOU WERE AWAY
                 </h3>
               </div>
-              <span className="text-xs text-white/40 font-mono">Last visited: Today, 9:15 AM</span>
+              <span className="text-xs text-white/40 font-mono">Real-time telemetry delta</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
                 <div className="flex items-center justify-between text-[10px] font-mono">
-                  <span className="text-[#00E5FF] font-bold">PHOENIX</span>
+                  <span className="text-[#00E5FF] font-bold">DECISIONS</span>
                   <span className="text-white/40">12m ago</span>
                 </div>
                 <p className="text-white font-medium">Progress 68% → 74%</p>
@@ -426,7 +432,7 @@ export default function DashboardPage() {
                   <span className="text-rose-300 font-bold">BLOCKER</span>
                   <span className="text-white/40">32m ago</span>
                 </div>
-                <p className="text-white font-medium">Rahul reported blocker</p>
+                <p className="text-white font-medium">Arjun reported blocker</p>
                 <span className="text-[10px] text-rose-300/80">AWS KMS Key Policy</span>
               </div>
 
@@ -435,8 +441,8 @@ export default function DashboardPage() {
                   <span className="text-emerald-300 font-bold">TASKS</span>
                   <span className="text-white/40">1h ago</span>
                 </div>
-                <p className="text-white font-medium">4 tasks completed</p>
-                <span className="text-[10px] text-emerald-300/80">Auth & Tokens</span>
+                <p className="text-white font-medium">{tasks.filter((t) => t.status === 'COMPLETED').length} tasks completed</p>
+                <span className="text-[10px] text-emerald-300/80">Sprint Deliveries</span>
               </div>
 
               <div className="p-3 rounded-xl bg-sky-400/10 border border-sky-400/30 space-y-1">
@@ -444,8 +450,8 @@ export default function DashboardPage() {
                   <span className="text-sky-300 font-bold">DUTY LEAVE</span>
                   <span className="text-white/40">2h ago</span>
                 </div>
-                <p className="text-white font-medium">Ananya requested leave</p>
-                <span className="text-[10px] text-sky-300/80">Field client duty</span>
+                <p className="text-white font-medium">Sreeshith submitted request</p>
+                <span className="text-[10px] text-sky-300/80">On-call rotation handover</span>
               </div>
 
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
@@ -453,8 +459,8 @@ export default function DashboardPage() {
                   <span className="text-amber-300 font-bold">DEADLINE</span>
                   <span className="text-white/40">Yesterday</span>
                 </div>
-                <p className="text-white font-medium">Project deadline moved</p>
-                <span className="text-[10px] text-amber-300/80">Atlas moved by +2 days</span>
+                <p className="text-white font-medium">Client Platform adjusted</p>
+                <span className="text-[10px] text-amber-300/80">SAML SSO target date moved</span>
               </div>
             </div>
           </section>
@@ -487,7 +493,7 @@ export default function DashboardPage() {
       <RaiseComplaintModal
         isOpen={isComplaintOpen}
         onClose={() => setIsComplaintOpen(false)}
-        employeeName="Rahul Sharma"
+        employeeName={complaintTarget}
       />
     </div>
   );

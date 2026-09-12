@@ -117,11 +117,11 @@ export function AttentionRequired() {
 
       {/* Action Cards Grid */}
       {attentionItems.length === 0 ? (
-        <div className="rounded-2xl border border-border/80 bg-card p-8 text-center space-y-2">
-          <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto" />
-          <h4 className="font-semibold text-sm">All operations are smooth</h4>
-          <p className="text-xs text-muted-foreground">
-            No active blockers, unexcused absences, or critical deadline risks right now.
+        <div className="rounded-2xl border border-white/10 bg-[#0B0F19] p-8 text-center space-y-2">
+          <CheckCircle2 className="h-8 w-8 text-emerald-400 mx-auto" />
+          <h4 className="font-bold text-sm text-white">Everything looks on track.</h4>
+          <p className="text-xs text-[hsl(215_16%_65%)]">
+            No unresolved blockers, unexcused absences, or critical deadline exceptions requiring Director attention right now.
           </p>
         </div>
       ) : (
