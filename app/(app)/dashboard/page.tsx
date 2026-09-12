@@ -10,6 +10,7 @@ import { CalendarPreviewWidget } from '@/components/dashboard/CalendarPreviewWid
 import { RecentActivityWidget } from '@/components/dashboard/RecentActivityWidget';
 import { RaiseComplaintModal } from '@/components/dashboard/RaiseComplaintModal';
 import { NewTaskModal } from '@/components/work/NewTaskModal';
+import { DashboardAnalyticsDeck } from '@/components/dashboard/DashboardAnalyticsDeck';
 import { LeaveRequestModal } from '@/components/leave/LeaveRequestModal';
 import {
   Plus,
@@ -31,17 +32,19 @@ import {
   Sparkles,
   ExternalLink,
   Flame,
-  Radio
+  Radio,
+  Target
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { currentUser, currentRole, users, tasks, projects, meetings, leaves, blockers, auditLogs } = useStore();
+  const { currentUser, currentRole, users, tasks, projects, meetings, leaves, blockers, auditLogs, goals } = useStore();
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isComplaintOpen, setIsComplaintOpen] = useState(false);
   const [complaintTarget, setComplaintTarget] = useState('Shivani');
   const [currentTime, setCurrentTime] = useState('10:00 AM');
   const [currentDate, setCurrentDate] = useState('Wednesday, September 12');
+  const [activeHorizon, setActiveHorizon] = useState<'ALL' | 'OPERATIONAL' | 'ANALYTICAL' | 'STRATEGIC'>('ALL');
 
   // 1-minute employee daily checkin state
   const [employeeTaskProgress, setEmployeeTaskProgress] = useState(72);
@@ -360,57 +363,105 @@ export default function DashboardPage() {
         /* ─────────────────────────────────────────────────────────────
             DIRECTOR / EXECUTIVE SPLIT COMMAND GRID (8 COLS / 4 COLS)
         ─────────────────────────────────────────────────────────────── */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ═════════════════════════════════════════════════════════
-              LEFT COLUMN: COMMAND STAGE (8 COLS)
-          ═══════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* 1. ATTENTION & EXECUTIVE ACTION ITEMS */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    EXECUTIVE ATTENTION & OVERRIDES
-                  </h2>
-                </div>
-                <span className="text-[11px] text-white/40 font-mono">Real-time anomaly triage</span>
-              </div>
-              <AttentionRequired />
-            </section>
+        <div className="space-y-6">
+          {/* ── INTERACTIVE ANALYTICS & VISUALIZATION DECK ── */}
+          <DashboardAnalyticsDeck activeHorizon={activeHorizon} setActiveHorizon={setActiveHorizon} />
 
-            {/* 2. LIVE TEAM PRESENCE & WORK SPECTRUM */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    LIVE TEAM OPERATIONS MATRIX
-                  </h2>
-                </div>
-                <Link href="/people" className="text-xs font-semibold text-[#00E5FF] hover:underline flex items-center gap-1">
-                  Directory ({users.length}) <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <LiveTeamPulse />
-            </section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* ═════════════════════════════════════════════════════════
+                LEFT COLUMN: COMMAND STAGE (8 COLS)
+            ═══════════════════════════════════════════════════════════ */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* 1. ATTENTION & EXECUTIVE ACTION ITEMS (Operational / All) */}
+              {(activeHorizon === 'ALL' || activeHorizon === 'OPERATIONAL') && (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                      <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                        EXECUTIVE ATTENTION & OVERRIDES
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-white/40 font-mono">Real-time anomaly triage</span>
+                  </div>
+                  <AttentionRequired />
+                </section>
+              )}
 
-            {/* 3. FLAGSHIP INITIATIVES & PROJECT HEALTH */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-purple-500" />
-                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    PROJECT EXECUTION & HEALTH
-                  </h2>
-                </div>
-                <Link href="/projects" className="text-xs font-semibold text-[#00E5FF] hover:underline flex items-center gap-1">
-                  All Projects ({projects.length}) <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <ProjectHealthWidget />
-            </section>
-          </div>
+              {/* 2. LIVE TEAM PRESENCE & WORK SPECTRUM (Operational / All) */}
+              {(activeHorizon === 'ALL' || activeHorizon === 'OPERATIONAL') && (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                        LIVE TEAM OPERATIONS MATRIX
+                      </h2>
+                    </div>
+                    <Link href="/people" className="text-xs font-semibold text-[#00E5FF] hover:underline flex items-center gap-1">
+                      Directory ({users.length}) <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  <LiveTeamPulse />
+                </section>
+              )}
+
+              {/* 3. FLAGSHIP INITIATIVES & PROJECT HEALTH (Analytical / Strategic / All) */}
+              {(activeHorizon === 'ALL' || activeHorizon === 'ANALYTICAL' || activeHorizon === 'STRATEGIC') && (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                      <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                        PROJECT EXECUTION & HEALTH
+                      </h2>
+                    </div>
+                    <Link href="/projects" className="text-xs font-semibold text-[#00E5FF] hover:underline flex items-center gap-1">
+                      All Projects ({projects.length}) <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  <ProjectHealthWidget />
+                </section>
+              )}
+
+              {/* 4. STRATEGIC OKRS & COMPANY GOALS (Strategic / All) */}
+              {(activeHorizon === 'ALL' || activeHorizon === 'STRATEGIC') && (
+                <section className="rounded-2xl border border-white/10 bg-[#0B0F19] p-5 space-y-4 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-[#2962FF]/15 text-[#00E5FF] border border-[#2962FF]/25">
+                        <Target className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Strategic OKRs & Execution Goals</h3>
+                        <p className="text-xs text-[hsl(215_16%_65%)]">Company objectives and key result milestones.</p>
+                      </div>
+                    </div>
+                    <Link href="/goals" className="text-xs font-semibold text-[#00E5FF] hover:underline flex items-center gap-1">
+                      All OKRs ({goals.length}) <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+
+                  <div className="space-y-3">
+                    {goals.map((g) => (
+                      <div key={g.id} className="p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-all space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white">{g.title}</span>
+                          <span className="text-xs font-mono font-bold text-[#00E5FF]">{g.progress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[#2962FF] to-emerald-400 rounded-full" style={{ width: `${g.progress}%` }} />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] text-white/50 font-mono">
+                          <span>Owner: {g.ownerName}</span>
+                          <span>Target: {g.targetDate}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
 
           {/* ═════════════════════════════════════════════════════════
               RIGHT COLUMN: OPERATIONS RAIL (4 COLS)
@@ -483,7 +534,8 @@ export default function DashboardPage() {
             </section>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Global Modals */}
       <NewTaskModal isOpen={isNewTaskOpen} onClose={() => setIsNewTaskOpen(false)} />
