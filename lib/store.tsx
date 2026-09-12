@@ -154,7 +154,7 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
-const STORAGE_KEY = 'veixon_command_center_state_v2';
+const STORAGE_KEY = 'veixon_command_center_state_v3';
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
